@@ -4,11 +4,13 @@ This repo contains a sample GitHub Action for deploying an application to IBM Ku
 
 ## Deploy with GitHub Actions
 
-1. If you'd like to use the file yourself fork the repo and update [.github/workflos/iks.yaml](.github/workflos/iks.yaml).
+1. If you'd like to use the file yourself fork the repo and open [.github/workflows/iks.yml](.github/workflows/iks.yml), you'll need to update a few environment variables.
 1. Add your own IKS cluster name, image name, and deployment name.
 1. In your GitHub repository settings create two secrets, `ICR_NAMESPACE` and `IBM_CLOUD_API_KEY`.
 
-A new version of the app will be deployed on every `push`, you can change this too.
+Get a new IBM Cloud API key from the [IAM settings](https://cloud.ibm.com/iam/apikeys).
+
+By default, a new version of the app will be deployed on every `push`, you can change this to on `release`.
 
 ## Run locally
 
