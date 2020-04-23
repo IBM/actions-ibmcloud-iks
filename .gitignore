@@ -1,0 +1,5 @@
+# Temporary file directories
+tmp/
+.tmp/
+venv
+.venv/
