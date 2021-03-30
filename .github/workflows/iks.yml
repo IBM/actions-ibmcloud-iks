@@ -1,62 +1,39 @@
-# This workflow will build a docker container, publish it to IBM Container Registry, and deploy it to IKS when a release is created
-#
-# To configure this workflow:
-#
-# 1. Ensure that your repository contains a Dockerfile
-# 2. Setup secrets in your repository by going to settings: Create ICR_NAMESPACE and IBM_CLOUD_API_KEY
-# 3. Change the values for the IBM_CLOUD_REGION, REGISTRY_HOSTNAME, IMAGE_NAME, IKS_CLUSTER, DEPLOYMENT_NAME, and PORT
-
-name: Build and Deploy to IKS
-
-on: [push]
-
-# Environment variables available to all jobs and steps in this workflow
-env:
-  GITHUB_SHA: ${{ github.sha }}
-  IBM_CLOUD_API_KEY: ${{ secrets.IBM_CLOUD_API_KEY }}
-  IBM_CLOUD_REGION: us-south
-  ICR_NAMESPACE: ${{ secrets.ICR_NAMESPACE }}
-  REGISTRY_HOSTNAME: us.icr.io
-  IMAGE_NAME: hello-python
-  IKS_CLUSTER: bq1sm2gd0sjtps7ajoa0 # name or id of cluster
-  DEPLOYMENT_NAME: hello-python
-  PORT: 5001
+name: Deploy to AKS Cluster
+on:
+  pull_request:
+    branches:
+    - master
 
 jobs:
-  setup-build-publish-deploy:
-    name: Setup, Build, Publish, and Deploy
+  build:
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@master
+    
+    - uses: Azure/docker-login@v1
+      with:
+        login-server: cloudlifeacr.azurecr.io
+        username: ${{ secrets.ACR_USERNAME }}
+        password: ${{ secrets.ACR_PASSWORD }}
+    
+    - run: |
+        docker build . -t cloudlifeacr.azurecr.io/k8sflask:${{ github.sha }}
+        docker push cloudlifeacr.azurecr.io/k8sflask:${{ github.sha }}
+      
+    # Set the target AKS cluster.
+    - uses: Azure/aks-set-context@v1
+      with:
+        creds: '${{ secrets.AZURE_CREDENTIALS }}'
+        cluster-name: aks-cluster-a5606394
+        resource-group: rg-aks-cluster-a5606394
+        
+    - uses: Azure/k8s-create-secret@v1
+      with:
+        container-registry-url: cloudlifeacr.azurecr.io
+        container-registry-username: ${{ secrets.ACR_USERNAME }}
+        container-registry-password: ${{ secrets.ACR_PASSWORD }}
+        secret-name: k8s-secret
 
-    - name: Checkout
-      uses: actions/checkout@v2
-
-    # Download and Install IBM Cloud CLI
-    - name: Install IBM Cloud CLI
-      run: |
-        curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
-        ibmcloud --version
-        ibmcloud config --check-version=false
-        ibmcloud plugin install -f kubernetes-service
-        ibmcloud plugin install -f container-registry
-
-    # Authenticate with IBM Cloud CLI
-    - name: Authenticate with IBM Cloud CLI
-      run: |
-        ibmcloud login --apikey "${IBM_CLOUD_API_KEY}" -r "${IBM_CLOUD_REGION}" -g default
-        ibmcloud cr region-set "${IBM_CLOUD_REGION}"
-        ibmcloud cr login
-
-    # Build the Docker image
-    - name: Build with Docker
-      run: |
-        docker build -t "$REGISTRY_HOSTNAME"/"$ICR_NAMESPACE"/"$IMAGE_NAME":"$GITHUB_SHA" \
-          --build-arg GITHUB_SHA="$GITHUB_SHA" \
-          --build-arg GITHUB_REF="$GITHUB_REF" .
-
-    # Push the image to IBM Container Registry
-    - name: Push the image to ICR
-      run: |
         docker push $REGISTRY_HOSTNAME/$ICR_NAMESPACE/$IMAGE_NAME:$GITHUB_SHA
 
     # Deploy the Docker image to the IKS cluster
