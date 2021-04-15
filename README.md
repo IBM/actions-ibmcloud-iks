@@ -1,6 +1,6 @@
 # Use GitHub Actions to Deploy to IBM Kubernetes Service
 
-This repo contains a sample GitHub Action for deploying an application to IBM Kubernetes service (IKS). The application is a simple HelloWorld app using Python and Flask framework.
+This repo contains a sample GitHub Action for deploying an application to IBM Kubernetes Service (IKS). The application is a simple HelloWorld app using Python and Flask framework.
 
 ## Deploy with GitHub Actions
 
