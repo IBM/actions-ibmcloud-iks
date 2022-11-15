@@ -1,7 +1,7 @@
 # This workflow will build a docker container, publish it to IBM Container Registry, and deploy it to IKS when a release is created
 #
 # To configure this workflow:
-#
+#.
 # 1. Ensure that your repository contains a Dockerfile
 # 2. Setup secrets in your repository by going to settings: Create ICR_NAMESPACE and IBM_CLOUD_API_KEY
 # 3. Change the values for the IBM_CLOUD_REGION, REGISTRY_HOSTNAME, IMAGE_NAME, IKS_CLUSTER, DEPLOYMENT_NAME, and PORT
