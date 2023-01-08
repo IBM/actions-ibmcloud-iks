@@ -2,6 +2,11 @@
 
 This repo contains a sample GitHub Action for deploying an application to IBM Kubernetes Service (IKS). The application is a simple HelloWorld app using Python and Flask framework.
 
+##设置环境变量
+IBM_CLOUD_API_KEY      https://cloud.ibm.com/iam/apikeys 这里创建
+IBM_CLOUD_REGION       目标区域的名称，例如，us-south 或 eu-gb。
+IBM_RESOURCE_GROUP     目标资源组的名称 https://cloud.ibm.com/account/resource-groups 这里的名字
+
 ## Deploy with GitHub Actions
 
 1. If you'd like to use the file yourself fork the repo and open [.github/workflows/iks.yml](.github/workflows/iks.yml), you'll need to update a few environment variables.
